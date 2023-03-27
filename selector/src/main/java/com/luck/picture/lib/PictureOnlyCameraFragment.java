@@ -47,22 +47,24 @@ public class PictureOnlyCameraFragment extends PictureCommonFragment {
         super.onViewCreated(view, savedInstanceState);
         // 这里只有非内存回收状态下才走，否则当内存不足Fragment被回收后会重复执行
         if (savedInstanceState == null) {
-            if (SdkVersionUtils.isQ()) {
-                openSelectedCamera();
-            } else {
-                String[] writePermissionArray = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-                PermissionChecker.getInstance().requestPermissions(this, writePermissionArray, new PermissionResultCallback() {
-                    @Override
-                    public void onGranted() {
-                        openSelectedCamera();
-                    }
-
-                    @Override
-                    public void onDenied() {
-                        handlePermissionDenied(writePermissionArray);
-                    }
-                });
-            }
+//            if (SdkVersionUtils.isQ()) {
+//                openSelectedCamera();
+//            } else {
+//                String[] writePermissionArray = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+//                PermissionChecker.getInstance().requestPermissions(this, writePermissionArray, new PermissionResultCallback() {
+//                    @Override
+//                    public void onGranted() {
+//                        openSelectedCamera();
+//                    }
+//
+//                    @Override
+//                    public void onDenied() {
+//                        handlePermissionDenied(writePermissionArray);
+//                    }
+//                });
+//            }
+            // 由于隐私合规，去掉sd卡的写权限
+            openSelectedCamera();
         }
     }
 
