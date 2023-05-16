@@ -72,19 +72,43 @@ class CustomGestureDetector {
     }
 
     private float getActiveX(MotionEvent ev) {
-        try {
-            return ev.getX(mActivePointerIndex);
-        } catch (Exception e) {
-            return ev.getX();
+        int count = ev.getPointerCount();
+        float x;
+        if (count > 0) {
+            if (mActivePointerIndex < count && mActivePointerIndex >= 0) {
+                x = ev.getX(mActivePointerIndex);
+            } else {
+                x = ev.getX(count - 1);
+            }
+        } else {
+            x = ev.getX();
         }
+        return x;
+//        try {
+//            return ev.getX(mActivePointerIndex);
+//        } catch (Exception e) {
+//            return ev.getX();
+//        }
     }
 
     private float getActiveY(MotionEvent ev) {
-        try {
-            return ev.getY(mActivePointerIndex);
-        } catch (Exception e) {
-            return ev.getY();
+        int count = ev.getPointerCount();
+        float y;
+        if (count > 0) {
+            if (mActivePointerIndex < count && mActivePointerIndex >= 0) {
+                y = ev.getY(mActivePointerIndex);
+            } else {
+                y = ev.getY(count - 1);
+            }
+        } else {
+            y = ev.getY();
         }
+        return y;
+//        try {
+//            return ev.getY(mActivePointerIndex);
+//        } catch (Exception e) {
+//            return ev.getY();
+//        }
     }
 
     public boolean isScaling() {
