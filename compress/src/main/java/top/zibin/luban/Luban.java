@@ -37,6 +37,11 @@ public class Luban implements Handler.Callback {
     private CompressionPredicate mCompressionPredicate;
     private List<InputStreamProvider> mStreamProviders;
 
+    /**
+     * 图片压缩质量，默认60。
+     */
+    private int mCompressQuality = 60;
+
     private Handler mHandler;
 
     private Luban(Builder builder) {
@@ -49,6 +54,7 @@ public class Luban implements Handler.Callback {
         this.mNewCompressListener = builder.mNewCompressListener;
         this.mLeastCompressSize = builder.mLeastCompressSize;
         this.mCompressionPredicate = builder.mCompressionPredicate;
+        this.mCompressQuality = builder.mCompressQuality;
         mHandler = new Handler(Looper.getMainLooper(), this);
     }
 
@@ -171,7 +177,7 @@ public class Luban implements Handler.Callback {
      */
     private File get(InputStreamProvider input, Context context) throws IOException {
         try {
-            return new Engine(input, getImageCacheFile(context, Checker.SINGLE.extSuffix(input)), focusAlpha).compress();
+            return new Engine(input, getImageCacheFile(context, Checker.SINGLE.extSuffix(input)), focusAlpha).setCompressQuality(mCompressQuality).compress();
         } finally {
             input.close();
         }
@@ -210,14 +216,14 @@ public class Luban implements Handler.Callback {
         if (mCompressionPredicate != null) {
             if (mCompressionPredicate.apply(source)
                     && Checker.SINGLE.needCompress(mLeastCompressSize, source)) {
-                result = new Engine(path, outFile, focusAlpha).compress();
+                result = new Engine(path, outFile, focusAlpha).setCompressQuality(mCompressQuality).compress();
             } else {
                 // Ignore compression
                 result = new File(source);
             }
         } else {
             if (Checker.SINGLE.needCompress(mLeastCompressSize, source)) {
-                result = new Engine(path, outFile, focusAlpha).compress();
+                result = new Engine(path, outFile, focusAlpha).setCompressQuality(mCompressQuality).compress();
             } else {
                 // Ignore compression
                 result = new File(source);
@@ -243,7 +249,7 @@ public class Luban implements Handler.Callback {
                 if (mCompressListener != null) {
                     mCompressListener.onSuccess(msg.arg1, (File) msg.obj);
                 }
-                if (mNewCompressListener !=null) {
+                if (mNewCompressListener != null) {
                     mNewCompressListener.onSuccess(msg.getData().getString(KEY_SOURCE), (File) msg.obj);
                 }
                 break;
@@ -270,6 +276,8 @@ public class Luban implements Handler.Callback {
         private OnNewCompressListener mNewCompressListener;
         private CompressionPredicate mCompressionPredicate;
         private List<InputStreamProvider> mStreamProviders;
+
+        private int mCompressQuality = 60; //图片压缩质量
 
         Builder(Context context) {
             this.context = context;
@@ -303,7 +311,7 @@ public class Luban implements Handler.Callback {
         }
 
         public Builder load(final File file) {
-            load(file,0);
+            load(file, 0);
             return this;
         }
 
@@ -461,7 +469,7 @@ public class Luban implements Handler.Callback {
             return get(path, 0);
         }
 
-        public File get(final String path,int index) throws IOException {
+        public File get(final String path, int index) throws IOException {
             return build().get(new InputStreamAdapter() {
                 @Override
                 public InputStream openInternal() {
@@ -487,6 +495,19 @@ public class Luban implements Handler.Callback {
          */
         public List<File> get() throws IOException {
             return build().get(context);
+        }
+
+        /**
+         * compress quality 10-100,if less 10 the photo may be very fuzzy
+         */
+        public Builder compressQuality(int quality) {
+            if (quality < 10) {
+                quality = 10;
+            } else if (quality > 100) {
+                quality = 100;
+            }
+            this.mCompressQuality = quality;
+            return this;
         }
     }
 }
